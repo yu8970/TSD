@@ -264,24 +264,16 @@ class TSDConvFCBBoxHead(BBoxHead):
         delta_r = self.delta_r(x2)
         num_levels = len(feats)
         target_lvls = self.map_roi_levels(rois, num_levels)
-        TSD_cls_feats = x.new_zeros(
-            rois.size(0), self.in_channels, self.pool_size, self.pool_size
-        )
-        TSD_loc_feats = x.new_zeros(
-            rois.size(0), self.in_channels, self.pool_size, self.pool_size
-        )
+        TSD_cls_feats = x.new_zeros(rois.size(0), self.in_channels, self.pool_size, self.pool_size)
+        TSD_loc_feats = x.new_zeros(rois.size(0), self.in_channels, self.pool_size, self.pool_size)
         for i in range(num_levels):
             inds = target_lvls == i
             if inds.any():
                 delta_c_ = delta_c[inds, :]
                 delta_r_ = delta_r[inds, :]
                 rois_ = rois[inds, :]
-                tsd_feats_cls = self.align_pooling_pc[i](
-                    feats[i], rois_, delta_c_.to(dtype=rois_.dtype)
-                )
-                tsd_feats_loc = self.align_pooling_pr[i](
-                    feats[i], rois_, delta_r_.to(dtype=rois_.dtype)
-                )
+                tsd_feats_cls = self.align_pooling_pc[i](feats[i], rois_, delta_c_.to(dtype=rois_.dtype))
+                tsd_feats_loc = self.align_pooling_pr[i](feats[i], rois_, delta_r_.to(dtype=rois_.dtype))
                 TSD_cls_feats[inds] = tsd_feats_cls.to(dtype=x.dtype)
                 TSD_loc_feats[inds] = tsd_feats_loc.to(dtype=x.dtype)
 
